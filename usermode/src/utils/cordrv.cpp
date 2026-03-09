@@ -363,6 +363,29 @@ uint64_t CorDrv::FindProcessDTB(DWORD Pid) {
         if (currentPid == Pid) {
             uint64_t processDTB = 0;
             ReadPhysicalMemory(eprocessPhys + EProcess::DirectoryTableBase, &processDTB, sizeof(processDTB));
+            if (processDTB == 0) {
+                typedef NTSTATUS(WINAPI* RtlGetVersionPtr)(POSVERSIONINFOW);
+                HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+                if (hMod) {
+                    RtlGetVersionPtr fxPtr = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+                    if (fxPtr) {
+                        OSVERSIONINFOW rovi = { 0 };
+                        rovi.dwOSVersionInfoSize = sizeof(rovi);
+                        if (fxPtr(&rovi) == 0) {
+                            ULONG BuildNumber = rovi.dwBuildNumber;
+                            uint64_t userDirOffset = 0;
+                            if (BuildNumber >= 17134 && BuildNumber <= 17763) userDirOffset = 0x0278;
+                            else if (BuildNumber >= 18362 && BuildNumber <= 18363) userDirOffset = 0x0280;
+                            else if (BuildNumber >= 19041 && BuildNumber <= 22631) userDirOffset = 0x0388;
+                            else if (BuildNumber >= 26100 && BuildNumber <= 26200) userDirOffset = 0x0158;
+                            
+                            if (userDirOffset != 0) {
+                                ReadPhysicalMemory(eprocessPhys + userDirOffset, &processDTB, sizeof(processDTB));
+                            }
+                        }
+                    }
+                }
+            }
             return processDTB;
         }
 
