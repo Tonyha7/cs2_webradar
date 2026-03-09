@@ -51,6 +51,7 @@
     <ClInclude Include="src\utils\address.hpp" />
     <ClInclude Include="src\utils\config.hpp" />
     <ClInclude Include="src\utils\memory.hpp" />
+    <ClInclude Include="src\utils\cordrv.hpp" />
     <ClInclude Include="src\utils\exception.hpp" />
     <ClInclude Include="src\utils\utils.hpp" />
     <ClInclude Include="usermode.hpp" />
@@ -75,6 +76,7 @@
     <ClCompile Include="src\utils\config.cpp" />
     <ClCompile Include="src\utils\exception.cpp" />
     <ClCompile Include="src\utils\memory.cpp" />
+    <ClCompile Include="src\utils\cordrv.cpp" />
     <ClCompile Include="src\utils\utils.cpp" />
   </ItemGroup>
   <ItemGroup>

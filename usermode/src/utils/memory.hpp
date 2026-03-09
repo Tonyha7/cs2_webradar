@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cordrv.hpp"
+
 #define NT_SUCCESS(status) (static_cast<long>(status) >= 0)
 
 struct __system_handle_t
@@ -23,13 +25,14 @@ class c_memory
 public:
 	~c_memory()
 	{
-		if (this->m_handle != nullptr)
-			CloseHandle(this->m_handle);
+		
+			
+		m_drv.Close();
 	}
 
 	bool setup();
 	std::optional<uint32_t> get_process_id(const std::string_view& process_name);
-	std::optional<void*> hijack_handle();
+	
 	std::optional<c_address> find_pattern(const std::string_view& module_name, const std::string_view& pattern);
 	std::pair<std::optional<uintptr_t>, std::optional<uintptr_t>> get_module_info(const std::string_view& module_name);
 	bool is_anticheat_running();
@@ -74,12 +77,15 @@ public:
 
 private:
 	bool m_initialized = false;
-	void* m_handle = nullptr;
+	
 	uint32_t m_id = 0;
+	
+	CorDrv m_drv;
+	uint64_t m_process_dtb = 0;
 
 	bool read_memory(void* address, void* buffer, const size_t size)
 	{
-		return ReadProcessMemory(this->m_handle, reinterpret_cast<void*>(address), buffer, size, nullptr);
+		return m_drv.ReadProcessMemory(m_process_dtb, reinterpret_cast<uint64_t>(address), buffer, size);
 	}
 };
 
